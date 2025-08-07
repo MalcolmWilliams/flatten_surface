@@ -21,5 +21,18 @@ This project has following steps:
 	- Display the result with 3D surface, flattened surface, bounds and deformations heatmap with matplotlib tripcolor function: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tripcolor.html
 	- Export result as SVG file using svgwrite librairy: https://svgwrite.readthedocs.io/en/latest/
 
+## Installation
+
+Create a virtual environment and install the requirements. Tested on python `3.12`
+
+```bash
+python3 -m venv venv
+source ./venv/bin/activate
+python -m pip install -r requirements_minimal.txt
+```
+
+
 ## Usage
-	To use the project, call the function flatten_surface.main.main with the argument of your STL file containing a surface
+
+To use the project, call the main function : `python main.py`
+
