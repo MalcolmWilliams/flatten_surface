@@ -30,36 +30,40 @@ def init_unfold(vertices, faces, id_vertex):
 
 
 def unfold(vertices, faces, init_points_ids, init_points_pos):
-    unwrap = igl.lscm(
-        v=vertices,
-        f=faces,
-        b=init_points_ids,
-        bc=init_points_pos,
-    )[1]
-    if not len(unwrap):
+    result = igl.lscm(vertices, faces, init_points_ids, init_points_pos)
+    unwrap = result[0]  # UV coordinates should be the first element
+    if unwrap.shape[0] == 0:
         raise Exception("Impossible to unfold")
     return unwrap
 
 
 def get_all_bounds(faces):
-    boundary_facets = igl.boundary_facets(faces)
+    # igl.boundary_facets returns a tuple (F, J, K) where F is the boundary edges
+    boundary_facets_tuple = igl.boundary_facets(faces)
+    boundary_edges = boundary_facets_tuple[0]  # Get the actual edges array
+    
     adjacency_list = {}
-    for edge in boundary_facets:
-        if edge[0] not in adjacency_list:
-            adjacency_list[edge[0]] = []
-        if edge[1] not in adjacency_list:
-            adjacency_list[edge[1]] = []
-        adjacency_list[edge[0]].append(edge[1])
-        adjacency_list[edge[1]].append(edge[0])
+    for edge in boundary_edges:
+        # Each edge is a 1D array with 2 elements [v0, v1]
+        v0 = int(edge[0])
+        v1 = int(edge[1])
+        if v0 not in adjacency_list:
+            adjacency_list[v0] = []
+        if v1 not in adjacency_list:
+            adjacency_list[v1] = []
+        adjacency_list[v0].append(v1)
+        adjacency_list[v1].append(v0)
     all_boundary_loops = []
     visited = set()
-    for edge in boundary_facets:
-        if edge[0] not in visited:
-            loop, adjacency_list = find_boundary_loop(edge[0], adjacency_list)
+    for edge in boundary_edges:
+        v0 = int(edge[0])
+        v1 = int(edge[1])
+        if v0 not in visited:
+            loop, adjacency_list = find_boundary_loop(v0, adjacency_list)
             all_boundary_loops.append(loop)
             visited.update(loop)
-        if edge[1] not in visited:
-            loop, adjacency_list = find_boundary_loop(edge[1], adjacency_list)
+        if v1 not in visited:
+            loop, adjacency_list = find_boundary_loop(v1, adjacency_list)
             all_boundary_loops.append(loop)
             visited.update(loop)
     return all_boundary_loops
