@@ -6,7 +6,7 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds, deformation, path_png, optimization_results=None):
+def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds, deformation, optimization_results=None):
 
     a, b, c, d = plan
     grid = np.meshgrid(
@@ -98,5 +98,4 @@ def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds
                         max(valid_distortions) + 0.1 * y_range)
 
     plt.tight_layout()
-    plt.savefig(path_png, dpi=1000, bbox_inches='tight')
     plt.show()

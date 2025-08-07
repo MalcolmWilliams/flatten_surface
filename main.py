@@ -15,6 +15,8 @@ Examples:
   python main.py --optimize --attempts 100         # Interactive selection with 100 optimization attempts
   python main.py input.stl --optimize              # Optimize specific file
   python main.py input.stl --face-id 25            # Use specific face ID (no optimization)
+  python main.py input.stl --no-display            # Skip visualization window
+  python main.py input.stl --output-dxf custom.dxf # Custom DXF output path
 """
     )
     
@@ -48,15 +50,21 @@ Examples:
     )
     
     parser.add_argument(
-        '--output-png',
-        metavar='PATH',
-        help='Output path for PNG visualization (default: same as STL with .png extension)'
-    )
-    
-    parser.add_argument(
         '--output-svg',
         metavar='PATH', 
         help='Output path for SVG export (default: same as STL with .svg extension)'
+    )
+    
+    parser.add_argument(
+        '--output-dxf',
+        metavar='PATH', 
+        help='Output path for DXF export (default: same as STL with .dxf extension)'
+    )
+    
+    parser.add_argument(
+        '--no-display',
+        action='store_true',
+        help='Skip showing the visualization window (still saves PNG file)'
     )
     
     return parser.parse_args()
@@ -88,11 +96,12 @@ if __name__ == "__main__":
     try:
         results = flatten_surface(
             path_stl=stl_path,
-            path_png=args.output_png,
             path_svg=args.output_svg,
+            path_dxf=args.output_dxf,
             vertice_init_id=args.face_id,
             optimize_initial_points_flag=args.optimize,
-            max_optimization_attempts=args.attempts
+            max_optimization_attempts=args.attempts,
+            skip_display=args.no_display
         )
         
         print("\nFlattening completed successfully!")

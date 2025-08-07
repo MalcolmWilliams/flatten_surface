@@ -5,7 +5,7 @@ from tkinter import filedialog
 
 from .display import plot
 from .igl_api import init_unfold, unfold, get_all_bounds
-from .import_export import load, export_svg
+from .import_export import load, export_svg, export_dxf
 from .score import compute_deformation, compute_overall_distortion
 
 
@@ -120,8 +120,8 @@ def optimize_initial_points(vertices, faces, max_attempts=50, verbose=True):
     }
 
 
-def main(path_stl=None, path_png=None, path_svg=None, vertice_init_id=0, 
-         optimize_initial_points_flag=False, max_optimization_attempts=50):
+def main(path_stl=None, path_svg=None, path_dxf=None, vertice_init_id=0, 
+         optimize_initial_points_flag=False, max_optimization_attempts=50, skip_display=False):
     """
     Main function to flatten an STL surface.
     
@@ -129,9 +129,11 @@ def main(path_stl=None, path_png=None, path_svg=None, vertice_init_id=0,
         path_stl: Path to STL file
         path_png: Path for output PNG visualization
         path_svg: Path for output SVG file
+        path_dxf: Path for output DXF file
         vertice_init_id: Face ID to use for initial points (ignored if optimization enabled)
         optimize_initial_points_flag: Enable optimization of initial points
         max_optimization_attempts: Number of optimization attempts
+        skip_display: Skip showing the visualization window (still saves PNG)
     """
     while not os.path.isfile(path_stl):
         root = tk.Tk()
@@ -141,10 +143,10 @@ def main(path_stl=None, path_png=None, path_svg=None, vertice_init_id=0,
             title="Please select a STL file having surface (Not volume) to unfold",
             filetypes=(("STL surface", "*.stl"), ("STL surface", "*.STL"))
         )
-    if path_png is None:
-        path_png = os.path.join(os.path.dirname(path_stl), ".".join(os.path.basename(path_stl).split(".")[:-1]))
     if path_svg is None:
         path_svg = os.path.join(os.path.dirname(path_stl), ".".join(os.path.basename(path_stl).split(".")[:-1]) + ".svg")
+    if path_dxf is None:
+        path_dxf = os.path.join(os.path.dirname(path_stl), ".".join(os.path.basename(path_stl).split(".")[:-1]) + ".dxf")
     
     # Load mesh
     vertices, faces = load(path_stl)
@@ -165,8 +167,12 @@ def main(path_stl=None, path_png=None, path_svg=None, vertice_init_id=0,
     deformation = compute_deformation(vertices, faces, unwrap)
     
     # Generate visualization and export
-    plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds, deformation, path_png, optimization_results)
+    if not skip_display:
+        plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds, deformation, optimization_results)
+
+    # Always export both svg and dxf by default
     export_svg(unwrap, bounds, path_svg)
+    export_dxf(unwrap, bounds, path_dxf)
     
     # Return results for programmatic use
     return {
