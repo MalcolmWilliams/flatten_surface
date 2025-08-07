@@ -44,3 +44,18 @@ def compute_deformation(vertices, faces, unwrap):
     # distortion = 100 * (distortion - min(distortion)) / (max(distortion) - min(distortion))
 
     return area_distortion
+
+
+def compute_overall_distortion(area_distortion):
+    """
+    Compute a single scalar metric representing overall distortion across the mesh.
+    Uses RMS (Root Mean Square) to give more weight to high distortion areas.
+    
+    Args:
+        area_distortion: Array of per-triangle area distortions
+        
+    Returns:
+        float: Overall distortion metric (lower is better)
+    """
+    rms_distortion = np.sqrt(np.mean(area_distortion ** 2))
+    return rms_distortion
