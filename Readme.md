@@ -59,5 +59,14 @@ python main.py input.stl --face-id 25
 
 ## Output Quality
 
-Result quality depends on mesh quality. Higher resolution STL files produce better flattening results.
+Result quality depends heavily on the initial mesh. If the initial mesh is not a [developable surface](https://en.wikipedia.org/wiki/Developable_surface)[^1], using the `--optimize` parameter will be beneficial.
 
+The below figures show that by selecting the optimal point from which to unfold the overall distortion of the resulting 2D flattened mesh.
+
+Without fixed point optimization:
+![](figures/results.png)
+
+With fixed point optimization:
+![](figures/results_optimized.png)
+
+[^1]: In other words it cannot be flattened onto a plane without any distortion such as stretching/shrinking or tearing.
