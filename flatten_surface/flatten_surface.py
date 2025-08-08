@@ -135,7 +135,7 @@ def main(path_stl=None, path_svg=None, path_dxf=None, vertice_init_id=0,
         max_optimization_attempts: Number of optimization attempts
         skip_display: Skip showing the visualization window (still saves PNG)
     """
-    while not os.path.isfile(path_stl):
+    if not path_stl:
         root = tk.Tk()
         root.withdraw()
         path_stl = filedialog.askopenfilename(
