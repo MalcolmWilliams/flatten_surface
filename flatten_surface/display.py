@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
+from .score import compute_overall_distortion
 
 
 def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds, deformation, optimization_results=None):
@@ -23,7 +24,7 @@ def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds
 
     # Original 3D mesh plot
     ax1 = fig.add_subplot(*subplot_layout, projection='3d')
-    ax1.plot_trisurf(vertices[:, 0], vertices[:, 1], vertices[:, 2], triangles=faces, edgecolor='k', alpha=0.7)
+    ax1.plot_trisurf(vertices[:, 0], vertices[:, 1], vertices[:, 2], triangles=faces, edgecolor='k', alpha=0.7, linewidth=0.1)
     ax1.plot_surface(grid[0], grid[1], (d - a * grid[0] - b * grid[1]) / c, alpha=0.5, rstride=100, cstride=100)
     ax1.scatter(*vertices[init_points_ids].T, color="red")
     [ax1.plot(*vertices[bound].T, color="green") for bound in bounds]
@@ -36,17 +37,21 @@ def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds
     # 2D parameterized mesh plot
     subplot_layout = (1, 3 if optimization_results is not None else 2, 2)
     ax2 = fig.add_subplot(*subplot_layout)
-    sc = ax2.tripcolor(unwrap[:, 0], unwrap[:, 1], faces, edgecolors='k', facecolors=deformation, cmap=cm.turbo)
-    fig.colorbar(sc, ax=ax2)
+    sc = ax2.tripcolor(unwrap[:, 0], unwrap[:, 1], faces, edgecolors='k', facecolors=deformation, cmap=cm.RdBu_r, linewidth=0.1)
+    cbar = fig.colorbar(sc, ax=ax2)
+    cbar.set_label('Area Change (%)', rotation=270, labelpad=20)
     ax2.scatter(*init_points_pos.T, color="red")
     [ax2.plot(*unwrap[bound].T, color="green") for bound in bounds]
     ax2.set_aspect('equal')
     
+    # Calculate overall distortion percentage
+    overall_distortion_pct = compute_overall_distortion(deformation)
+    
     # Update title to show optimization results if available
     if optimization_results is not None:
-        title = f'Parameterized 2D Mesh (Optimized)\nImprovement: {optimization_results["improvement_percent"]:.1f}%'
+        title = f'Parameterized 2D Mesh\nOverall distortion: {overall_distortion_pct:.1f}%\nRed=Stretch, Blue=Shrink'
     else:
-        title = 'Parameterized 2D Mesh (LSCM)'
+        title = f'Parameterized 2D Mesh (LSCM)\nOverall distortion: {overall_distortion_pct:.1f}%\nRed=Stretch, Blue=Shrink'
     ax2.set_title(title)
     ax2.set_xlabel('U')
     ax2.set_ylabel('V')
@@ -86,7 +91,7 @@ def plot(vertices, faces, unwrap, init_points_pos, plan, init_points_ids, bounds
         
         ax3.set_xlabel('Optimization Attempt')
         ax3.set_ylabel('RMS Area Distortion')
-        ax3.set_title('Optimization Convergence')
+        ax3.set_title(f'Optimization Convergence\nImprovement: {optimization_results["improvement_percent"]:.1f}%')
         ax3.legend()
         ax3.grid(True, alpha=0.3)
         

@@ -6,8 +6,8 @@ Flattens 3D STL surfaces into 2D patterns using LSCM (Least Squares Conformal Ma
 
 - **LSCM Parameterization**: Preserves angles while minimizing distortion
 - **Initial Point Optimization**: Automatically finds optimal starting points (10-50% distortion reduction)
-- **Distortion Analysis**: Visual heatmap showing area differences between 3D and 2D
-- **Multiple Output Formats**: PNG visualization and SVG export
+- **Distortion Analysis**: Visual heatmap showing percentage area change between 3D and 2D
+- **Multiple Output Formats**: PNG visualization, SVG and DXF export
 - **Interactive GUI**: File dialog for easy STL selection
 
 ## Installation
@@ -38,7 +38,7 @@ python main.py input.stl --face-id 25
 - `--optimize`: Enable distortion optimization (default: 50 attempts)
 - `--attempts N`: Number of optimization attempts 
 - `--face-id ID`: Specific face for initial points (ignored with `--optimize`)
-- `--output-png PATH`: Custom PNG output path
+- `--output-dxf PATH`: Custom DXF output path
 - `--output-svg PATH`: Custom SVG output path
 
 ## How It Works
@@ -53,9 +53,14 @@ python main.py input.stl --face-id 25
 
 **Metric**: RMS of per-triangle area differences: `sqrt(mean(|3D_area - 2D_area|²))`
 
-**Algorithm**: Brute force search over candidate faces (random + boundary-biased selection)
+**Practical Significance**: The overall distortion percentage indicates how much the 2D pattern differs from the original 3D surface. For fabric manufacturing, most materials can accommodate up to 4% distortion without significant issues. Higher values may result in:
+- Fabric puckering or stretching
+- Pattern pieces that don't fit properly when assembled
+- Visible distortion in the final product
 
-**Visualization**: 3-panel display showing original mesh, optimized result, and convergence plot
+**Color Visualization**: Red areas indicate stretching (positive %), blue areas indicate compression (negative %)
+
+**Algorithm**: Brute force search over candidate faces (random + boundary-biased selection)
 
 ## Output Quality
 
